@@ -31,4 +31,41 @@ if [ -z "$COORDINATES" ]; then
   exit 1
 fi
 
-xcrun simctl location booted start --distance=1 --speed="$SPEED" --interval=1 -- $COORDINATES
+
+
+booted_devices=()
+
+# Obtener la lista de dispositivos y leer línea por línea
+while IFS= read -r line; do
+    # Si la línea contiene "(Booted)", agregarla al array
+    if [[ $line == *"(Booted)"* ]]; then
+        booted_devices+=("$line")
+    fi
+done < <(xcrun simctl list devices | grep -E 'iOS|Booted')
+
+# Mostrar el contenido del array de dispositivos booteados
+echo "Dispositivos Booteados:"
+index=0
+for device in "${booted_devices[@]}"; do
+    echo "($index) $device"
+    ((index++))
+done
+
+booted_device_ids=()
+
+# Iterar sobre el array de dispositivos booteados y extraer los IDs
+for device in "${booted_devices[@]}"; do
+    # Extraer el ID del dispositivo y agregarlo al array
+    device_id=$(echo "$device" | awk -F'[()]' '{print $2}')
+    booted_device_ids+=("$device_id")
+done
+
+
+read -p "Ingrese el número del dispositivo deseado: " selected_index
+
+
+selected_device="${booted_devices[selected_index]}"
+device_id=$(echo "$selected_device" | awk -F'[()]' '{print $2}')
+
+
+xcrun simctl location "$device_id" start  --distance=1 --speed="$SPEED" --interval=1 -- $COORDINATES
