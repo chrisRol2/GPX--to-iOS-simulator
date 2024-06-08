@@ -13,3 +13,6 @@ You can do it on websites like https://gpx.studio/l/es/
 ```
   bash simulate-location.sh <path-to-your-gpx-file[.gpx]>  <speed in km/h>
 ```
+
+
+4. select your device
